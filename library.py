@@ -233,6 +233,7 @@ titanic_transformer = Pipeline(steps=[
     ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
     #add your new ohe step below
     ('ohe_joined', CustomOHETransformer(target_column='Joined')),
+    ('fare', CustomTukeyTransformer(target_column='Fare', fence='outer')),
     ], verbose=True)
 
 
@@ -242,4 +243,5 @@ customer_transformer = Pipeline(steps=[
     ('experience_mapping', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high': 2})),
     ('os_ohe', CustomOHETransformer('OS')),
     ('isp_ohe', CustomOHETransformer('ISP')),
+    ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
 ], verbose=True)
