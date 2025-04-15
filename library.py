@@ -231,10 +231,15 @@ class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
 titanic_transformer = Pipeline(steps=[
     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
     ('class', CustomMappingTransformer('Class', {'Crew': 0, 'C3': 1, 'C2': 2, 'C1': 3})),
+    #add your new ohe step below
+    ('ohe_joined', CustomOHETransformer(target_column='Joined')),
     ], verbose=True)
 
 
 customer_transformer = Pipeline(steps=[
-    #add drop step below
-    ('drop_cols', CustomDropColumnsTransformer(column_list=['ID'], action='drop')),
-    ], verbose=True)
+    ('drop_columns', CustomDropColumnsTransformer(column_list=['ID'], action='drop')),
+    ('gender_mapping', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
+    ('experience_mapping', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high': 2})),
+    ('os_ohe', CustomOHETransformer('OS')),
+    ('isp_ohe', CustomOHETransformer('ISP')),
+], verbose=True)
