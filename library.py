@@ -333,6 +333,56 @@ class CustomTukeyTransformer(BaseEstimator, TransformerMixin):
         X_[self.target_column] = X_[self.target_column].clip(lower=self.low_wall, upper=self.high_wall)
         return X_
     
+class CustomRobustTransformer(BaseEstimator, TransformerMixin):
+  """Applies robust scaling to a specified column in a pandas DataFrame.
+    This transformer calculates the interquartile range (IQR) and median
+    during the `fit` method and then uses these values to scale the
+    target column in the `transform` method.
+
+    Parameters
+    ----------
+    column : str
+        The name of the column to be scaled.
+
+    Attributes
+    ----------
+    target_column : str
+        The name of the column to be scaled.
+    iqr : float
+        The interquartile range of the target column.
+    med : float
+        The median of the target column.
+  """
+  def __init__(self, target_column: str):
+        self.target_column = target_column
+        self.iqr: float = None
+        self.med: float = None
+
+  def fit(self, X: pd.DataFrame, y=None):
+      # Check that X is a DataFrame and column exists
+      assert isinstance(X, pd.DataFrame), f'{self.__class__.__name__}.fit expected DataFrame but got {type(X)} instead.'
+      assert self.target_column in X.columns, f'{self.__class__.__name__}.fit unrecognizable column {self.target_column}.'
+
+      col = X[self.target_column].dropna()
+      q1 = col.quantile(0.25)
+      q3 = col.quantile(0.75)
+      self.iqr = q3 - q1
+      self.med = col.median()
+      return self
+
+  def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+      # Check that fit was called
+      if self.iqr is None or self.med is None:
+          raise AssertionError(f"{self.__class__.__name__}: NotFittedError: This instance is not fitted yet. Call 'fit' first.")
+      
+      # Make a copy
+      X_ = X.copy()
+      
+      # Only scale if IQR is not zero
+      if self.iqr != 0:
+          X_[self.target_column] = (X_[self.target_column] - self.med) / self.iqr
+      
+      return X_
 
 
 
@@ -355,3 +405,4 @@ customer_transformer = Pipeline(steps=[
     ('isp_ohe', CustomOHETransformer('ISP')),
     ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
 ], verbose=True)
+
