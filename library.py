@@ -227,6 +227,116 @@ class CustomDropColumnsTransformer(BaseEstimator, TransformerMixin):
             return X.drop(columns=self.column_list, errors='ignore').copy()
         
 
+class CustomSigma3Transformer(BaseEstimator, TransformerMixin):
+    """
+    A transformer that applies 3-sigma clipping to a specified column in a pandas DataFrame.
+
+    This transformer follows the scikit-learn transformer interface and can be used in
+    a scikit-learn pipeline. It clips values in the target column to be within three standard
+    deviations from the mean.
+
+    Parameters
+    ----------
+    target_column : Hashable
+        The name of the column to apply 3-sigma clipping on.
+
+    Attributes
+    ----------
+    high_wall : Optional[float]
+        The upper bound for clipping, computed as mean + 3 * standard deviation.
+    low_wall : Optional[float]
+        The lower bound for clipping, computed as mean - 3 * standard deviation.
+    """
+    def __init__(self, target_column: Hashable):
+        # init the column to clip
+        self.target_column = target_column
+        self.high_wall: Optional[float] = None
+        self.low_wall: Optional[float] = None
+
+    def fit(self, X: pd.DataFrame, y=None):
+        # 3-sigma boundaries for the column
+        assert self.target_column in X.columns, f"Sigma3Transformer: unknown column {self.target_column}"
+        col = X[self.target_column]
+        mean = col.mean()
+        std = col.std()
+        self.low_wall = mean - 3 * std
+        self.high_wall = mean + 3 * std
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        # Clip values using computed 3-sigma boundaries
+        assert self.low_wall is not None and self.high_wall is not None, \
+            f"{self.__class__.__name__}.fit has not been called."
+        X_ = X.copy()
+        X_[self.target_column] = X_[self.target_column].clip(lower=self.low_wall, upper=self.high_wall)
+        return X_.reset_index(drop=True)
+
+               
+class CustomTukeyTransformer(BaseEstimator, TransformerMixin):
+    """
+    A transformer that applies Tukey's fences (inner or outer) to a specified column in a pandas DataFrame.
+
+    This transformer follows the scikit-learn transformer interface and can be used in a scikit-learn pipeline.
+    It clips values in the target column based on Tukey's inner or outer fences.
+
+    Parameters
+    ----------
+    target_column : Hashable
+        The name of the column to apply Tukey's fences on.
+    fence : Literal['inner', 'outer'], default='outer'
+        Determines whether to use the inner fence (1.5 * IQR) or the outer fence (3.0 * IQR).
+
+    Attributes
+    ----------
+    inner_low : Optional[float]
+        The lower bound for clipping using the inner fence (Q1 - 1.5 * IQR).
+    outer_low : Optional[float]
+        The lower bound for clipping using the outer fence (Q1 - 3.0 * IQR).
+    inner_high : Optional[float]
+        The upper bound for clipping using the inner fence (Q3 + 1.5 * IQR).
+    outer_high : Optional[float]
+        The upper bound for clipping using the outer fence (Q3 + 3.0 * IQR).
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({'values': [10, 15, 14, 20, 100, 5, 7]})
+    >>> tukey_transformer = CustomTukeyTransformer(target_column='values', fence='inner')
+    >>> transformed_df = tukey_transformer.fit_transform(df)
+    >>> transformed_df
+    """
+    def __init__(self, target_column: Hashable, fence: Literal['inner', 'outer'] = 'outer'):
+        # init with target column and fence type
+        assert fence in ['inner', 'outer'], f"Invalid fence value: {fence}"
+        self.target_column = target_column
+        self.fence = fence
+        self.low_wall: Optional[float] = None
+        self.high_wall: Optional[float] = None
+
+    def fit(self, X: pd.DataFrame, y=None):
+        # find IQR-based boundaries using Tukey's rule
+        assert self.target_column in X.columns, f"TukeyTransformer: unknown column {self.target_column}"
+        col = X[self.target_column]
+        q1 = col.quantile(0.25)
+        q3 = col.quantile(0.75)
+        iqr = q3 - q1
+        multiplier = 1.5 if self.fence == 'inner' else 3.0
+        self.low_wall = q1 - multiplier * iqr
+        self.high_wall = q3 + multiplier * iqr
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        # clip column values to within Tukey boundaries
+        assert self.low_wall is not None and self.high_wall is not None, \
+            f"{self.__class__.__name__}.transform fit has not been called."
+        X_ = X.copy()
+        X_[self.target_column] = X_[self.target_column].clip(lower=self.low_wall, upper=self.high_wall)
+        return X_
+    
+
+
+
+
 #first define the pipeline
 titanic_transformer = Pipeline(steps=[
     ('gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
