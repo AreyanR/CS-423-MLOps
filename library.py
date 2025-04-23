@@ -406,6 +406,9 @@ customer_transformer = Pipeline(steps=[
     ('experience_mapping', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high': 2})),
     ('os_ohe', CustomOHETransformer('OS')),
     ('isp_ohe', CustomOHETransformer('ISP')),
-    ('time spent', CustomTukeyTransformer('Time Spent', 'inner')),
+    ('knn_impute', CustomKNNTransformer()),
+    ('age_tukey', CustomTukeyTransformer('Age', fence='inner')),
+    ('time_spent_tukey', CustomTukeyTransformer('Time Spent', fence='inner')),
+    ('age_scale', CustomRobustTransformer('Age')),
+    ('time_spent_scale', CustomRobustTransformer('Time Spent')),
 ], verbose=True)
-
