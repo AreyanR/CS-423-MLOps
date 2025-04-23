@@ -385,6 +385,60 @@ class CustomRobustTransformer(BaseEstimator, TransformerMixin):
       return X_
 
 
+class CustomKNNTransformer(BaseEstimator, TransformerMixin):
+  """Imputes missing values using KNN.
+
+  This transformer wraps the KNNImputer from scikit-learn and hard-codes
+  add_indicator to be False. It also ensures that the input and output
+  are pandas DataFrames.
+
+  Parameters
+  ----------
+  n_neighbors : int, default=5
+      Number of neighboring samples to use for imputation.
+  weights : {'uniform', 'distance'}, default='uniform'
+      Weight function used in prediction. Possible values:
+      "uniform" : uniform weights. All points in each neighborhood
+      are weighted equally.
+      "distance" : weight points by the inverse of their distance.
+      in this case, closer neighbors of a query point will have a
+      greater influence than neighbors which are further away.
+  """
+  #your code below
+  def __init__(self, n_neighbors=5, weights="uniform"):
+        self.n_neighbors = n_neighbors
+        self.weights = weights
+        # Make the imputer, force add_indicator to False (required for our pipeline)
+        self.knn_imputer = KNNImputer(n_neighbors=self.n_neighbors,
+                                      weights=self.weights,
+                                      add_indicator=False)
+        self._fitted = False        # Just to track if fit was actually called
+        self._fit_columns = None    # Save the column names from fit() to check later
+
+  def fit(self, X: pd.DataFrame, y=None):
+      # Warn if you're asking for more neighbors than there are rows — won't work right
+      if self.n_neighbors > len(X):
+          warnings.warn(f"n_neighbors={self.n_neighbors} is more than number of rows ({len(X)}).", UserWarning)
+
+      self.knn_imputer.fit(X)
+      self._fitted = True
+      self._fit_columns = list(X.columns)  # Store column names to check against later
+      return self
+
+  def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    if not self._fitted:
+        raise AssertionError(f"{self.__class__.__name__}: NotFittedError: You need to call fit() before transform().")
+
+    # Check for column mismatch before calling .transform()
+    if list(X.columns) != self._fit_columns:
+        warnings.warn("Warning: Columns or column order are different from when you fit the data.", UserWarning)
+
+    try:
+        result = self.knn_imputer.transform(X)
+        return pd.DataFrame(result, columns=X.columns, index=X.index)
+    except ValueError as e:
+        raise ValueError(str(e))
+
 
 
 #first define the pipeline
@@ -406,9 +460,11 @@ customer_transformer = Pipeline(steps=[
     ('experience_mapping', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high': 2})),
     ('os_ohe', CustomOHETransformer('OS')),
     ('isp_ohe', CustomOHETransformer('ISP')),
-    ('knn_impute', CustomKNNTransformer()),
-    ('age_tukey', CustomTukeyTransformer('Age', fence='inner')),
-    ('time_spent_tukey', CustomTukeyTransformer('Time Spent', fence='inner')),
-    ('age_scale', CustomRobustTransformer('Age')),
-    ('time_spent_scale', CustomRobustTransformer('Time Spent')),
+    ('age_tukey', CustomTukeyTransformer('Age', fence='inner')), # Tukey before imputation
+    ('time_spent_tukey', CustomTukeyTransformer('Time Spent', fence='inner')), # Tukey before imputation
+    ('age_scale', CustomRobustTransformer('Age')), # Scaling before imputation
+    ('time_spent_scale', CustomRobustTransformer('Time Spent')), # Scaling before imputation
+    ('knn_impute', CustomKNNTransformer()), # Imputation after outlier handling and scaling
 ], verbose=True)
+
+
