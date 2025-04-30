@@ -12,6 +12,8 @@ from sklearn.pipeline import Pipeline
 import warnings
 from sklearn.impute import KNNImputer
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+
 
 
 
