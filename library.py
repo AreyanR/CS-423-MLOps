@@ -475,14 +475,9 @@ class CustomTargetTransformer(BaseEstimator, TransformerMixin):
         assert len(X) == len(y), f'{self.__class__.__name__}.fit X and y must be same length but got {len(X)} and {len(y)} instead.'
 
         #Create new df with just col and target - enables use of pandas methods below
-        """
         X_ = X[[self.col]]
         target = self.col+'_target_'
         X_[target] = y
-        """
-        X_ = X[[self.col]].copy()
-        X_['target'] = y
-
 
         # Calculate global mean
         self.global_mean_ = X_[target].mean()
