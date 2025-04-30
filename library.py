@@ -11,6 +11,8 @@ set_config(transform_output="pandas")
 from sklearn.pipeline import Pipeline
 import warnings
 from sklearn.impute import KNNImputer
+from sklearn.neighbors import KNeighborsClassifier
+
 
 
 
