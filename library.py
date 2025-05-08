@@ -608,9 +608,39 @@ def find_random_state(
     return rs_value, Var    
 
 
+def dataset_setup(original_table: pd.DataFrame, label_column_name: str, the_transformer, rs: int, ts: float = 0.2):
+    """
+    Splits a dataset and applies a transformer pipeline.
+
+    Parameters:
+    - original_table: Full dataframe including features and label
+    - label_column_name: Name of the column to treat as label
+    - the_transformer: Transformer to apply
+    - rs: Random state value
+    - ts: Test size (default 0.2)
+
+    Returns:
+    - X_train_numpy, X_test_numpy, y_train_numpy, y_test_numpy
+    """
+    from sklearn.model_selection import train_test_split
+    labels = original_table[label_column_name].to_list()
+    features = original_table.drop(columns=[label_column_name])
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, labels, test_size=ts, shuffle=True, random_state=rs, stratify=labels
+    )
+    
+    X_train_transformed = the_transformer.fit_transform(X_train, y_train)
+    X_test_transformed = the_transformer.transform(X_test)
+
+    return X_train_transformed.to_numpy(), X_test_transformed.to_numpy(), np.array(y_train), np.array(y_test)
 
 
+def titanic_setup(titanic_table: pd.DataFrame, transformer=titanic_transformer, rs=titanic_variance_based_split, ts: float = 0.2):
+    return dataset_setup(titanic_table, 'Survived', transformer, rs, ts)
 
+def customer_setup(customer_table: pd.DataFrame, transformer=customer_transformer, rs=customer_variance_based_split, ts: float = 0.2):
+    return dataset_setup(customer_table, 'Buy', transformer, rs, ts)
 
 
 
