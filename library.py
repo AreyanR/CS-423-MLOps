@@ -641,14 +641,6 @@ def dataset_setup(original_table: pd.DataFrame, label_column_name: str, the_tran
     return X_train_transformed.to_numpy(), X_test_transformed.to_numpy(), np.array(y_train), np.array(y_test)
 
 
-def titanic_setup(titanic_table: pd.DataFrame, transformer=titanic_transformer, rs=titanic_variance_based_split, ts: float = 0.2):
-    return dataset_setup(titanic_table, 'Survived', transformer, rs, ts)
-
-def customer_setup(customer_table: pd.DataFrame, transformer=customer_transformer, rs=customer_variance_based_split, ts: float = 0.2):
-    return dataset_setup(customer_table, 'Buy', transformer, rs, ts)
-
-
-
 # random state variables
 titanic_variance_based_split = 107
 customer_variance_based_split = 113
@@ -683,3 +675,9 @@ customer_transformer = Pipeline(steps=[
     ], verbose=True)
 
 
+
+def titanic_setup(titanic_table: pd.DataFrame, transformer=titanic_transformer, rs=titanic_variance_based_split, ts: float = 0.2):
+    return dataset_setup(titanic_table, 'Survived', transformer, rs, ts)
+
+def customer_setup(customer_table: pd.DataFrame, transformer=customer_transformer, rs=customer_variance_based_split, ts: float = 0.2):
+    return dataset_setup(customer_table, 'Buy', transformer, rs, ts)
