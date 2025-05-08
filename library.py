@@ -640,7 +640,6 @@ def dataset_setup(original_table: pd.DataFrame, label_column_name: str, the_tran
 
     return X_train_transformed.to_numpy(), X_test_transformed.to_numpy(), np.array(y_train), np.array(y_test)
 
-
 # random state variables
 titanic_variance_based_split = 107
 customer_variance_based_split = 113
