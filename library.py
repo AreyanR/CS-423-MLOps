@@ -660,7 +660,7 @@ titanic_transformer = Pipeline(steps=[
     ], verbose=True)
 
 
-"""
+
 customer_transformer = Pipeline(steps=[
     ('map_os', CustomMappingTransformer('OS', {'Android': 0, 'iOS': 1})),
     ('target_isp', CustomTargetTransformer(col='ISP')),
@@ -673,18 +673,6 @@ customer_transformer = Pipeline(steps=[
     ('impute', CustomKNNTransformer(n_neighbors=5)),
     ], verbose=True)
 
-"""
-customer_transformer = Pipeline(steps=[
-    ('map_os', CustomMappingTransformer('OS', {'Android': 0, 'iOS': 1})),
-    ('target_isp', CustomTargetTransformer(col='ISP')),
-    ('map_level', CustomMappingTransformer('Experience Level', {'low': 0, 'medium': 1, 'high':2})),
-    ('map_gender', CustomMappingTransformer('Gender', {'Male': 0, 'Female': 1})),
-    ('impute', CustomKNNTransformer(n_neighbors=5)),  # moved up
-    ('tukey_age', CustomTukeyTransformer('Age', 'inner')),
-    ('tukey_time spent', CustomTukeyTransformer('Time Spent', 'inner')),
-    ('scale_age', CustomRobustTransformer(target_column='Age')),
-    ('scale_time spent', CustomRobustTransformer(target_column='Time Spent')),
-], verbose=True)
 
 
 def titanic_setup(titanic_table: pd.DataFrame, transformer=titanic_transformer, rs=titanic_variance_based_split, ts: float = 0.2):
