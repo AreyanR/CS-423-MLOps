@@ -679,3 +679,25 @@ def titanic_setup(titanic_table: pd.DataFrame, transformer=titanic_transformer, 
 
 def customer_setup(customer_table, transformer=customer_transformer, rs=customer_variance_based_split, ts=.2):
     return dataset_setup(customer_table, 'Rating', transformer, rs, ts)
+
+
+
+
+def threshold_results(thresh_list, actuals, predicted):
+    result_df = pd.DataFrame(columns=['threshold', 'precision', 'recall', 'f1', 'auc', 'accuracy'])
+    for t in thresh_list:
+        yhat = [1 if v >= t else 0 for v in predicted]
+        precision = precision_score(actuals, yhat, zero_division=0)
+        recall = recall_score(actuals, yhat, zero_division=0)
+        f1 = f1_score(actuals, yhat)
+        accuracy = accuracy_score(actuals, yhat)
+        auc = roc_auc_score(actuals, predicted)  # Same value across all rows
+        result_df.loc[len(result_df)] = {
+            'threshold': t,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1,
+            'auc': auc,
+            'accuracy': accuracy
+        }
+    return result_df, result_df.style.highlight_max(color='pink', axis=0)
