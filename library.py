@@ -684,22 +684,32 @@ def customer_setup(customer_table, transformer=customer_transformer, rs=customer
 
 
 def threshold_results(thresh_list, actuals, predicted):
-    result_df = pd.DataFrame(columns=['threshold', 'precision', 'recall', 'f1','accuracy', 'auc'])
+    result_df = pd.DataFrame(columns=['threshold', 'precision', 'recall', 'f1', 'accuracy', 'auc'])
+    
+    # Loop through each threshold and calculate the metrics
     for t in thresh_list:
+        # Apply threshold to predicted values
         yhat = [1 if v >= t else 0 for v in predicted]
+        
+        # Calculate precision, recall, f1, accuracy, and auc
         precision = precision_score(actuals, yhat, zero_division=0)
         recall = recall_score(actuals, yhat, zero_division=0)
         f1 = f1_score(actuals, yhat)
         accuracy = accuracy_score(actuals, yhat)
         auc = roc_auc_score(actuals, predicted)
+        
+        # Add the results to the DataFrame
         result_df.loc[len(result_df)] = {
             'threshold': t,
             'precision': precision,
             'recall': recall,
             'f1': f1,
-            'auc': auc,
-            'accuracy': accuracy
+            'accuracy': accuracy,
+            'auc': auc
         }
-        result_df = result_df.round(2)  # match output style
+    
+    # Round values to 2 decimal places to match output style
+    result_df = result_df.round(2)
+    
+    # Return the DataFrame with the max values highlighted in pink
     return result_df, result_df.style.highlight_max(color='pink', axis=0)
-
