@@ -677,5 +677,5 @@ customer_transformer = Pipeline(steps=[
 def titanic_setup(titanic_table: pd.DataFrame, transformer=titanic_transformer, rs=titanic_variance_based_split, ts: float = 0.2):
     return dataset_setup(titanic_table, 'Survived', transformer, rs, ts)
 
-def customer_setup(customer_table: pd.DataFrame, transformer=customer_transformer, rs=customer_variance_based_split, ts: float = 0.2):
-    return dataset_setup(customer_table, 'Buy', transformer, rs, ts)
+def customer_setup(customer_table, transformer=customer_transformer, rs=customer_variance_based_split, ts=.2):
+    return dataset_setup(customer_table, 'Rating', transformer, rs, ts)
