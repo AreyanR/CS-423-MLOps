@@ -15,6 +15,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score, recall_score, accuracy_score, roc_auc_score, f1_score
+from sklearn.linear_model import LogisticRegressionCV
 
 
 
