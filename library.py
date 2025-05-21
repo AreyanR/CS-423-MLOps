@@ -734,7 +734,7 @@ def sort_grid(grid):
 from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import HalvingGridSearchCV
 
-def halving_search(model, grid, x_train, y_train, factor=2, min_resources="exhaust", scoring='roc_auc'):
+def halving_search(model, grid, x_train, y_train, factor=3, min_resources="exhaust", scoring='roc_auc'):
   #your code below
   halving_cv = HalvingGridSearchCV(
         model,
