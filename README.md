@@ -13,12 +13,24 @@ Here’s a quick visual of the pipeline:
 
 The pipeline is called `pokemon_transformer` and has these steps:
 
-1. **`map_type_1` (CustomMappingTransformer):** Converts the main Pokemon type (`Type_1`) into numbers by mapping each type to its own integer.
-2. **`map_type_2` (CustomMappingTransformer):** Same idea for `Type_2`, including ‘None’ for any missing values.
-3. **`map_egg1` (CustomMappingTransformer):** Turns the primary egg group (`Egg_Group_1`) into integers.
-4. **`map_egg2` (CustomMappingTransformer):** Same as above but for `Egg_Group_2`, again with ‘None’ for missing.
-5. **`map_mega` (CustomMappingTransformer):** Changes the `hasMegaEvolution` column from True/False to 1/0.
 
+1. **`map_egg1` (CustomMappingTransformer):**
+   Converts the primary egg group (`Egg_Group_1`) into integers by mapping each unique value to its own integer.
+
+2. **`map_type_1` (CustomMappingTransformer):**
+   Maps the main Pokémon type (`Type_1`) to integer values.
+
+3. **`map_type_2` (CustomMappingTransformer):**
+   Maps the secondary Pokémon type (`Type_2`) to integer values, including `'None'` for missing data.
+
+4. **`impute` (CustomKNNTransformer):**
+   Fills in any missing values using KNN imputation, after all categorical columns have been mapped to numbers.
+
+5. **Other features (`Total`, `Sp_Atk`, `Sp_Def`, `Attack`, `Speed`, `Defense`, `HP`) are already numeric and do not require transformation.**
+
+The pipeline **only uses the top 10 features from feature ranking**:
+- `Egg_Group_1`, `Total`, `Sp_Atk`, `Sp_Def`, `Attack`, `Speed`, `Type_1`, `Defense`, `HP`, `Type_2`
 
 ## Random State
 121
+

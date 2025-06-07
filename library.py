@@ -754,25 +754,19 @@ def halving_search(model, grid, x_train, y_train, factor=3, min_resources="exhau
 
 # Pokemon RS 121
 # a lot of NaNs in here so auto fill them as 'None'
+# a lot of NaNs in here so auto fill them as 'None'
 pokemon_df['Type_2'] = pokemon_df['Type_2'].fillna('None')
 pokemon_df['Egg_Group_2'] = pokemon_df['Egg_Group_2'].fillna('None')
 
 pokemon_transformer = Pipeline(steps=[
-    # map categorical values in 'Type_1' to numerical integers
-    ('map_type_1', CustomMappingTransformer('Type_1', {
-        val: i for i, val in enumerate(pokemon_df['Type_1'].unique())
-    })), # map categorical values in 'Type_1' to numerical integers
-    ('map_type_2', CustomMappingTransformer('Type_2', {
-        val: i for i, val in enumerate(pokemon_df['Type_2'].fillna('None').unique())
-    })), # transformer to map categorical values in 'Egg_Group_1' to numerical integers
     ('map_egg1', CustomMappingTransformer('Egg_Group_1', {
         val: i for i, val in enumerate(pokemon_df['Egg_Group_1'].unique())
-    })), # transformer to map categorical values in 'Egg_Group_1' to numerical integers
-    ('map_egg2', CustomMappingTransformer('Egg_Group_2', {
-        val: i for i, val in enumerate(pokemon_df['Egg_Group_2'].fillna('None').unique())
     })),
-
-    # transformer to map boolean values in 'hasMegaEvolution' to integers
-    ('map_mega', CustomMappingTransformer('hasMegaEvolution', {True: 1, False: 0})),
-
+    ('map_type_1', CustomMappingTransformer('Type_1', {
+        val: i for i, val in enumerate(pokemon_df['Type_1'].unique())
+    })),
+    ('map_type_2', CustomMappingTransformer('Type_2', {
+        val: i for i, val in enumerate(pokemon_df['Type_2'].fillna('None').unique())
+    })),
+    ('impute', CustomKNNTransformer(n_neighbors=5)),
 ], verbose=True)
