@@ -32,5 +32,5 @@ The pipeline **only uses the top 10 features from feature ranking**:
 - `Egg_Group_1`, `Total`, `Sp_Atk`, `Sp_Def`, `Attack`, `Speed`, `Type_1`, `Defense`, `HP`, `Type_2`
 
 ## Random State
-121
+120
 
