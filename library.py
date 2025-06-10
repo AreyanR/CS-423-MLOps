@@ -755,18 +755,27 @@ def halving_search(model, grid, x_train, y_train, factor=3, min_resources="exhau
 # Pokemon RS 121
 # a lot of NaNs in here so auto fill them as 'None'
 # a lot of NaNs in here so auto fill them as 'None'
-pokemon_df['Type_2'] = pokemon_df['Type_2'].fillna('None')
-pokemon_df['Egg_Group_2'] = pokemon_df['Egg_Group_2'].fillna('None')
-
 pokemon_transformer = Pipeline(steps=[
-    ('map_egg1', CustomMappingTransformer('Egg_Group_1', {
-        val: i for i, val in enumerate(pokemon_df['Egg_Group_1'].unique())
-    })),
-    ('map_type_1', CustomMappingTransformer('Type_1', {
-        val: i for i, val in enumerate(pokemon_df['Type_1'].unique())
-    })),
-    ('map_type_2', CustomMappingTransformer('Type_2', {
-        val: i for i, val in enumerate(pokemon_df['Type_2'].fillna('None').unique())
-    })),
+      # Target encode
+    ('target_type1', CustomTargetTransformer('Type_1')),
+    ('target_type2', CustomTargetTransformer('Type_2')),
+    ('target_egg1', CustomTargetTransformer('Egg_Group_1')),
+    ('target_egg2', CustomTargetTransformer('Egg_Group_2')),
+
+    # Tukey treat outliers in numeric
+    ('tukey_total', CustomTukeyTransformer('Total', 'inner')),
+    ('tukey_attack', CustomTukeyTransformer('Attack', 'inner')),
+    ('tukey_defense', CustomTukeyTransformer('Defense', 'inner')),
+    ('tukey_speed', CustomTukeyTransformer('Speed', 'inner')),
+    ('tukey_hp', CustomTukeyTransformer('HP', 'inner')),
+
+    # Scale numeric
+    ('scale_total', CustomRobustTransformer('Total')),
+    ('scale_attack', CustomRobustTransformer('Attack')),
+    ('scale_defense', CustomRobustTransformer('Defense')),
+    ('scale_speed', CustomRobustTransformer('Speed')),
+    ('scale_hp', CustomRobustTransformer('HP')),
+
+    # Final imputation
     ('impute', CustomKNNTransformer(n_neighbors=5)),
 ], verbose=True)
