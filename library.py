@@ -756,6 +756,10 @@ def halving_search(model, grid, x_train, y_train, factor=3, min_resources="exhau
 # Pokemon RS 10
 # a lot of NaNs in here so auto fill them as 'None'
 # a lot of NaNs in here so auto fill them as 'None'
+
+
+
+
 pokemon_transformer = Pipeline(steps=[
       # Target encode
     ('target_type1', CustomTargetTransformer('Type_1')),
