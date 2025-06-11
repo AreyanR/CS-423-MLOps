@@ -753,7 +753,7 @@ def halving_search(model, grid, x_train, y_train, factor=3, min_resources="exhau
   return result
 
 
-# Pokemon RS 121
+# Pokemon RS 10
 # a lot of NaNs in here so auto fill them as 'None'
 # a lot of NaNs in here so auto fill them as 'None'
 pokemon_transformer = Pipeline(steps=[
@@ -763,15 +763,13 @@ pokemon_transformer = Pipeline(steps=[
     ('target_egg1', CustomTargetTransformer('Egg_Group_1')),
     ('target_egg2', CustomTargetTransformer('Egg_Group_2')),
 
-    # Tukey treat outliers in numeric
-    ('tukey_total', CustomTukeyTransformer('Total', 'inner')),
+    # Tukey treat outliers in numeri
     ('tukey_attack', CustomTukeyTransformer('Attack', 'inner')),
     ('tukey_defense', CustomTukeyTransformer('Defense', 'inner')),
     ('tukey_speed', CustomTukeyTransformer('Speed', 'inner')),
     ('tukey_hp', CustomTukeyTransformer('HP', 'inner')),
 
     # Scale numeric
-    ('scale_total', CustomRobustTransformer('Total')),
     ('scale_attack', CustomRobustTransformer('Attack')),
     ('scale_defense', CustomRobustTransformer('Defense')),
     ('scale_speed', CustomRobustTransformer('Speed')),

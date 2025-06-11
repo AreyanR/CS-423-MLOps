@@ -28,4 +28,4 @@
 - `Egg_Group_2`
 - `HP`
 
-**Random state:** `rs = 178`
+**Random state:** `rs = 10`
