@@ -759,25 +759,26 @@ def halving_search(model, grid, x_train, y_train, factor=3, min_resources="exhau
 
 
 
-
 pokemon_transformer = Pipeline(steps=[
       # Target encode
     ('target_type1', CustomTargetTransformer('Type_1')),
     ('target_type2', CustomTargetTransformer('Type_2')),
-    ('target_egg1', CustomTargetTransformer('Egg_Group_1')),
-    ('target_egg2', CustomTargetTransformer('Egg_Group_2')),
 
-    # Tukey treat outliers in numeri
+    # Tukey treat outliers in numeric
     ('tukey_attack', CustomTukeyTransformer('Attack', 'inner')),
     ('tukey_defense', CustomTukeyTransformer('Defense', 'inner')),
     ('tukey_speed', CustomTukeyTransformer('Speed', 'inner')),
     ('tukey_hp', CustomTukeyTransformer('HP', 'inner')),
+    ('tukey_sp_atk', CustomTukeyTransformer('Sp_Atk', 'inner')),
+    ('tukey_sp_def', CustomTukeyTransformer('Sp_Def', 'inner')),
 
     # Scale numeric
     ('scale_attack', CustomRobustTransformer('Attack')),
     ('scale_defense', CustomRobustTransformer('Defense')),
     ('scale_speed', CustomRobustTransformer('Speed')),
     ('scale_hp', CustomRobustTransformer('HP')),
+    ('scale_sp_atk', CustomRobustTransformer('Sp_Atk')),
+    ('scale_sp_def', CustomRobustTransformer('Sp_Def')),
 
     # Final imputation
     ('impute', CustomKNNTransformer(n_neighbors=5)),
